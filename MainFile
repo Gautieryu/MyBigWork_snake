@@ -13,6 +13,16 @@ typedef struct point //地图上的点的节点
 	int r;
 	int c;
 } point;
+typedef struct flag_map
+{
+    point prior;
+    int visited;
+    int distance;
+    int ok;
+    int owndir;
+}flag_map;
+
+
 HANDLE stdOutput; //声明windows标准输出句柄
 
 void init(int * length, point * foodAt, int * dir, point body[], char map[][SIZE]); //初始化
@@ -324,3 +334,93 @@ int exist_path(point start,point desti,int length,point body[])
     return 0;
 }
 
+int shortest_path(point start,point desti,point shortest_path[MAX_LENGTH],int length,int body[])
+{
+    flag_map[SIZE][SIZE];//在寻路过程中用于标记前置节点和是否访问过
+    int i,j;
+    point tmp,four[4];
+    point queue[MAX_Pos+2];
+    int head_flag=0,tail_flag=0;
+    tmp.c=-1;
+    tmp.r=-1;
+    //初始化
+    for(i=0;i<SIZE;i++){
+        for(j=0;j<SIZE;j++){
+            flag_map[i][j].prior=tmp;
+            flag_map[i][j].visited=0;
+            flag_map[i][j].owndir=-1;
+            if(moveable(point map[i][j],int length,int body[])==1){
+                flag_map[i][j].ok=1;
+            }
+            else {
+                flag_map[i][j].ok=0;
+            }
+        }
+    }
+    flag_map[start.r][start.r].distance=0;
+    flag_map[start.r][start.r].ok=1;
+    flag_map[start.r][start.r].visited=1;
+    queue[tail_flag]=start;
+    tail_flag+=1;
+    while(head_flag!=tail_flag){
+        tmp=queue[head_flag];
+        head_flag=(head_flag+1)%(MAX_Pos+2);
+        /*
+        map[tmp.r-1][tmp.c];up
+        map[tmp.r+1][tmp.c];down
+        map[tmp.r][tmp.c-1];left
+        map[tmp.r][tmp.c+1];right
+        */
+        if(flag_map[tmp.r-1][tmp.c].ok==1&&flag_map[tmp.r-1][tmp.c].visited==0){//up point
+            flag_map[tmp.r-1][tmp.c].distance=flag_map[tmp.r][tmp.c].distance+1;
+            flag_map[tmp.r-1][tmp.c].visited=1;
+            flag_map[tmp.r-1][tmp.c].prior=tmp;
+            flag_map[tmp.r-1][tmp.c].owndir=0;
+            // add into the queue
+            tmp.r-=1;
+            queue[tail_flag]=tmp;
+            tmp.r+=1;
+            tail_flag=(tail_flag+1)%(MAX_Pos+2);
+        }
+        if(flag_map[tmp.r+1][tmp.c].ok==1&&flag_map[tmp.r+1][tmp.c].visited==0){//down point
+            flag_map[tmp.r+1][tmp.c].distance=flag_map[tmp.r][tmp.c].distance+1;
+            flag_map[tmp.r+1][tmp.c].visited=1;
+            flag_map[tmp.r+1][tmp.c].prior=tmp;
+            flag_map[tmp.r+1][tmp.c].owndir=0;
+            // add into the queue
+            tmp.r+=1;
+            queue[tail_flag]=tmp;
+            tmp.r-=1;
+            tail_flag=(tail_flag+1)%(MAX_Pos+2);
+        }
+        if(flag_map[tmp.r][tmp.c-1].ok==1&&flag_map[tmp.r][tmp.c-1].visited==0){//left point
+            flag_map[tmp.r][tmp.c-1].distance=flag_map[tmp.r][tmp.c].distance+1;
+            flag_map[tmp.r][tmp.c-1].visited=1;
+            flag_map[tmp.r][tmp.c-1].prior=tmp;
+            flag_map[tmp.r][tmp.c-1].owndir=0;
+            // add into the queue
+            tmp.c-=1;
+            queue[tail_flag]=tmp;
+            tmp.c+=1;
+            tail_flag=(tail_flag+1)%(MAX_Pos+2);
+        }
+        if(flag_map[tmp.r][tmp.c+1].ok==1&&flag_map[tmp.r][tmp.c+1].visited==0){//right point
+            flag_map[tmp.r][tmp.c+1].distance=flag_map[tmp.r][tmp.c].distance+1;
+            flag_map[tmp.r][tmp.c+1].visited=1;
+            flag_map[tmp.r][tmp.c+1].prior=tmp;
+            flag_map[tmp.r][tmp.c+1].owndir=0;
+            // add into the queue
+            tmp.c+=1;
+            queue[tail_flag]=tmp;
+            tmp.c-=1;
+            tail_flag=(tail_flag+1)%(MAX_Pos+2);
+        }
+    }
+    shortest_path[0]=desti;//在最短路径的数组中，点是从终点到起点排列的。也就是说，如果蛇按照这条路径行进，
+    i=0;                    //蛇头会在数组的[0]处；而[i]处即start点。
+    while(flag_map[shortest_path[i].r][shortest_path[i].c].distance!=0){
+        i++;
+        shortest_path[i]=flag_map[shortest_path[i-1].r][shortest_path[i-1].c].prior;
+    }
+    return i;//返回start点在数组中的位置
+}
