@@ -35,7 +35,7 @@ void food(point * foodAt, point body[], int length, char map[][SIZE]); //生成�
 int main()
 {
 	char map[SIZE][SIZE]; //定义地图
-	point body[MAX_LENGTH], foodAt; //整个蛇身体和食物的所在点（body数组的第一个值为蛇头）
+	point body[MAX_LENGTH], foodAt,path[MAX_LENGTH]; //整个蛇身体和食物的所在点（body数组的第一个值为蛇头）
 	int length; //蛇的实际长度
 	int dir; //行进方向
 	int rate = 1; //行进速率
@@ -44,9 +44,11 @@ int main()
 
 	while (1)
 	{
-		Sleep(50 / rate);
-		dir = getDir(dir); //获取蛇的行进方向
-		//dir = getAIDir(dir, length, body, foodAt); //获取AI判断得出的行进方向
+		Sleep(500 / rate);
+		//dir = getDir(dir); //获取蛇的行进方向
+		dir = getAIDir(dir, length, body, foodAt); //获取AI判断得出的行进方向
+		//dir=get_dir_of_a_smart_snake(body[0],foodAt,path,length,body,map);
+		//get_dir_of_a_smart_snake(point start,point desti,point path[MAX_LENGTH],int length,point body[],char map[SIZE][SIZE])
 		result = move(foodAt, dir, length, body); //蛇的运动
 		if (result == 1) //如果吃到食物
 		{
@@ -73,9 +75,9 @@ int main()
 void init(int * length, point * foodAt, int * dir, point body[], char map[][SIZE]) //初始化
 {
 	memset(map, '*', SIZE * SIZE); //初始化地图
-	body[0].r = 1, body[0].c = 1; //初始化蛇的身体
+	body[0].r = 1, body[0].c = 3; //初始化蛇的身体
 	body[1].r = 1, body[1].c = 2;
-	body[2].r = 1, body[2].c = 3;
+	body[2].r = 1, body[2].c = 1;
 	*length = 3; //初始长度为3
 	*dir = 1; //初始方向向右
 	food(foodAt, body, *length, map); //生成食物
@@ -429,21 +431,20 @@ int shortest_path(point start,point desti,point shortest_path[MAX_LENGTH],int le
 }
 
 //找到合适的路径，存入path[]中。path[0]是最终点，path[函数返回值]是蛇头
-int smart_snake_path(point start,point desti,point path[MAX_LENGTH],int path_flag,int length,point body[],char map[SIZE][SIZE],int *case,point food_position)
+int smart_snake_path(point start,point desti,point path[MAX_LENGTH],int length,point body[],char map[SIZE][SIZE],point food_position)
 {
-    point p1[MAX_LENGTH],p2[MAX_LENGTH],p3[MAX_LENGTH],point virtual_snake[MAX_LENGTH];
+    point p1[MAX_LENGTH],p2[MAX_LENGTH];
     point up,down,left,right,tmp_body[MAX_LENGTH];
     int p1_flag,p2_flag,p3_flag;
     int i,j,max;
     if(exist_path(start,desti,length,body)==1){//情况1：如果蛇到食物的路径存在，并且蛇吃到食物后仍能到达蛇尾，则沿此路径（p1)前进
-        p1_flag=shortest_path(start,desti,p1,length,body,map[][SIZE]);
+        p1_flag=shortest_path(start,desti,p1,length,body,map);
         for(i=1,j=p1_flag;i<length;i++){
             p1[++j]=body[i];//body[0]处的蛇头已经在pl_flag处，所以由其+1开始存整条蛇身
         }
         //令虚拟小蛇沿P1行进至desti
         if(exist_path(desti,p1[length-1],length,body)==1){
-            memccpy(path,p1,p1_flag*sizeof(point));//
-            (*case)=1;
+            memcpy(path,p1,(p1_flag*sizeof(point)));//
             return p1_flag;//返回只包含shortest_path的路径p1（p1[0]为desti，起始点p1[p1_flag]为蛇头）
         }
     }
@@ -455,51 +456,51 @@ int smart_snake_path(point start,point desti,point path[MAX_LENGTH],int path_fla
             for(i=1;i<length;i++){
                 tmp_body[i]=body[i-1];//移动1步后蛇身除了头以外的位置
             }
-            if(p2[p2_flag-1]!=up&&moveable(up,length,body)){//向上一步
+            if((p2[p2_flag-1].c!=up.c||p2[p2_flag-1].r!=up.r)&&moveable(up,length,body)){//向上一步
                 tmp_body[0]=up;
                 if(exist_path(up,tmp_body[length-1],length,tmp_body)==1){
                     path[0]=up;//与上一种情况返回格式保持一致
                     path[1]=start;
                     p2_flag=1;
-                    return p2_flag
+                    return p2_flag;
                 }
             }
-            if(p2[p2_flag-1]!=down&&moveable(down,length,body)){//向下一步
+            if((p2[p2_flag-1].c!=down.c||p2[p2_flag-1].r!=down.r)&&moveable(down,length,body)){//向下一步
                 tmp_body[0]=down;
                 if(exist_path(down,tmp_body[length-1],length,tmp_body)==1){
                     path[0]=down;//与上一种情况返回格式保持一致
                     path[1]=start;
                     p2_flag=1;
-                    return p2_flag
+                    return p2_flag;
                 }
             }
-            if(p2[p2_flag-1]!=left&&moveable(left,length,body)){//向左一步
+            if((p2[p2_flag-1].c!=left.c||p2[p2_flag-1].r!=left.r)&&moveable(left,length,body)){//向左一步
                 tmp_body[0]=left;
                 if(exist_path(left,tmp_body[length-1],length,tmp_body)==1){
                     path[0]=left;//与上一种情况返回格式保持一致
                     path[1]=start;
                     p2_flag=1;
-                    return p2_flag
+                    return p2_flag;
                 }
             }
-            if(p2[p2_flag-1]!=right&&moveable(right,length,body)){//向右一步
+            if((p2[p2_flag-1].c!=right.c||p2[p2_flag-1].r!=right.r)&&moveable(right,length,body)){//向右一步
                 tmp_body[0]=right;
                 if(exist_path(right,tmp_body[length-1],length,tmp_body)==1){
                     path[0]=right;//与上一种情况返回格式保持一致
                     path[1]=start;
                     p2_flag=1;
-                    return p2_flag
+                    return p2_flag;
                 }
             }
         }
         else {//(蛇吃到食物后无法到达蛇尾或蛇无法到达食物)并且（不存在从蛇头到蛇尾的路径）
-              //情况三： wander一下，没办法了，前往离食物最远的方向
+              //情况三： wander一下，前往离食物最远的方向
                 up=down=left=right=start;
                 up.r-=1,down.r+=1,left.c-=1,right.c+=1;
                 i=food_position.c+food_position.r;
                 //找到最远方向
-                if(abs(up.r+up.c-i)<=abs(down.r+down.i-i)){
-                    max=abs(down.r+down.i-i);
+                if(abs(up.r+up.c-i)<=abs(down.r+down.c-i)){
+                    max=abs(down.r+down.c-i);
                     j=2;
                 }
                 else {
@@ -541,10 +542,40 @@ int smart_snake_path(point start,point desti,point path[MAX_LENGTH],int path_fla
                 }
         }
     }
+    return -1;//means error
 }
 
 
-int get_dir_of_a_smart_snake(point start,point desti,point path[MAX_LENGTH],int path_flag,int length,point body[],char map[SIZE][SIZE],int *case,point food_position)
+int get_dir_of_a_smart_snake(point start,point desti,point path[MAX_LENGTH],int length,point body[],char map[SIZE][SIZE])
 {
-    
+    int op=-1;
+    point up,down,left,right,food_position;
+    food_position=desti;
+    while(1){
+    if(op>=0){
+        up=down=left=right;
+        up.r-=1,down.r+=1,left.c-=1,right.c+=1;
+        if(up.r==path[op].r&&up.c==path[op].c){
+            op--;
+            return 0;//up
+        }
+        else if(down.r==path[op].r&&down.c==path[op].c){
+            op--;
+            return 2;//down
+        }
+        else if(left.r==path[op].r&&left.c==path[op].c){
+            op--;
+            return 3;//left
+        }
+        else if(right.r==path[op].r&&right.c==path[op].c){
+            op--;
+            return 1;//right
+        }
+    }
+    else {
+        op=smart_snake_path(start,desti,path,length,body,map,food_position);
+        op--;
+    }
+ }
+ return -1;
 }
