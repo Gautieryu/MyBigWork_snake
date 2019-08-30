@@ -5,20 +5,32 @@
 #define SIZE 19
 
 int map[SIZE][SIZE];
-int command=1,length,sl_time=300,flag=1;
+int command=1,length,sl_time=300,flag=1,x_food,y_food,x_head,y_head;
 void init();
 void get_command();
 void move();
 void draw();
 void clear();
+void getAIDir();
 
+typedef struct point_struct
+{
+    int c,r;
+}point;
 
 
 int main()
 {
+    int mode_order;
+    scanf("%d",&mode_order);
     init();
     while(flag==1){
-        get_command();
+         if(mode_order==1){
+             get_command();
+         }
+        if(mode_order==2){
+         getAIDir();
+        }
         move();
         if(flag==1){
             draw();
@@ -59,9 +71,13 @@ void init()
     for(i=1,j=12;i<=3;i++){
         map[j][j-i]=i;
     }
+    x_head=12;
+    y_head=11;
     length=3;
     //生成第一个食物
     map[15][15]=-1;
+    x_food=15;
+    y_food=15;
 }
 
 void get_command()
@@ -115,6 +131,8 @@ void move()
             i=rand()%SIZE,j=(i*67)%SIZE;
             if(map[i][j]==0){
                 map[i][j]=-1;
+                x_food=i;
+                y_food=j;
                 break;
             }
         }
@@ -123,11 +141,15 @@ void move()
         flag=0;
     }
     else if(map[head_i][head_j]>0){ // itself
-        length=map[head_i][head_j];
+        length=map[head_i][head_j]-1;
         map[head_i][head_j]=1;
+        x_head=head_i;
+        y_head=head_j;
     }
     else { // nothing
         map[head_i][head_j]=1;
+        x_head=head_i;
+        y_head=head_j;
     }
 }
 
@@ -169,4 +191,53 @@ void clear()
 	coord.X=0;   //x=0屏幕最上方
 	coord.Y=0;   //y=0屏幕最左边
 	SetConsoleCursorPosition(handle,coord);//将光标位置移至屏幕左上角
+}
+
+void getAIDir() //获取AI判断得出的行进方向
+{
+	int i,dir=command,newDir = 0, distanceToFood;
+	point moveTo;
+	int dir_weight[4]; //上、右、下、左四个方向的权值
+	distanceToFood = abs(x_head - x_food) + abs(y_head - y_food);
+	for (i = 0; i < 4; i++)
+	{
+		if (abs(dir - i == 2)) //蛇不能反向
+		{
+			dir_weight[i] = -1; //权值取最小
+		}
+		else
+		{
+			switch (i)
+			{
+			case 0: moveTo.r = x_head - 1, moveTo.c = y_head; break;
+			case 1: moveTo.r = x_head, moveTo.c = y_head + 1; break;
+			case 2: moveTo.r = x_head + 1, moveTo.c = y_head; break;
+			case 3: moveTo.r = x_head, moveTo.c = y_head - 1; break;
+			}
+			if (map[moveTo.r][moveTo.c]!=0&&map[moveTo.r][moveTo.c]!=-1) //如果移动是不利的
+			{
+				dir_weight[i] = 0; //权值取0
+			}
+			else
+			{
+				if (distanceToFood > abs(moveTo.r - x_food) + abs(moveTo.c - y_food)) //如果移动后到食物的距离减少
+				{
+					dir_weight[i] = 2; //权值取2
+				}
+				else
+				{
+					dir_weight[i] = 1; //权值取1
+				}
+			}
+		}
+	}
+
+	for (i = 1; i < 4; i++) //取权值最大的方向
+	{
+		if (dir_weight[i] > dir_weight[newDir])
+		{
+			newDir = i;
+		}
+	}
+	command=newDir;
 }
