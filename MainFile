@@ -42,10 +42,10 @@ int main()
 	int result; //保存蛇运动的结果：【死亡】、【得分】、【无】
 	init(&length, &foodAt, &dir, body, map); //初始化
 
-  /*  point start,desti,pat[MAX_LENGTH];
+   point start,desti,pat[MAX_LENGTH];
     int k,i;
-    start.r=2,start.c=4;
-    desti.r=6,desti.c=8;
+    start.r=2,start.c=2;
+    desti.r=8,desti.c=8;
     if(exist_path(start,desti,length,body)==1)
         printf("exist_path works!\n");
     else if(exist_path(start,desti,length,body)==0){
@@ -59,13 +59,13 @@ int main()
 
     }
 
-    k=smart_snake_path(start,desti,pat,length,body,map,foodAt);
+ /*    k=smart_snake_path(start,desti,pat,length,body,map,foodAt);
     for(i=0;i<=k;i++){
         printf("#2 r:%d ,c:%d\n",pat[i].r,pat[i].c);
 
     }
 */
-while (1)
+/*while (1)
 	{
 		Sleep(500 / rate);
 		//dir = getDir(dir); //获取蛇的行进方向
@@ -96,7 +96,7 @@ while (1)
 	printf("  失败，此次得分为%d                          ", (length - 3) * 100);
 	system("pause");
 
-
+*/
 
 }
 void init(int * length, point * foodAt, int * dir, point body[], char map[][SIZE]) //初始化
@@ -432,7 +432,14 @@ int shortest_path(point start,point desti,point shortest_path[MAX_LENGTH],int le
     flag_map[start.r][start.c].visited=1;
     queue[tail_flag]=start;
     tail_flag+=1;
-    if(up.r-1>=0){
+
+
+    while(head_flag!=tail_flag){
+        tmp=queue[head_flag];
+        head_flag=(head_flag+1)%(MAX_POS+2);
+
+        up=down=left=right=tmp;
+        if(up.r-1>=0){
             up.r-=1;
         }
         if(down.r+1<SIZE){
@@ -444,21 +451,15 @@ int shortest_path(point start,point desti,point shortest_path[MAX_LENGTH],int le
         if(right.c+1<SIZE){
             right.c+=1;
         }
-    while(head_flag!=tail_flag){
-        tmp=queue[head_flag];
-        head_flag=(head_flag+1)%(MAX_POS+2);
-        /* 上下左右四个点
-        map[up.r][tmp.c];up
-        map[tmp.r+1][tmp.c];down
-        map[tmp.r][tmp.c-1];left
-        map[tmp.r][tmp.c+1];right
-        */
+
         if(flag_map[up.r][tmp.c].ok==1&&flag_map[up.r][tmp.c].visited==0){//up point
             flag_map[up.r][tmp.c].distance=flag_map[tmp.r][tmp.c].distance+1;//越早遍历到，必然distance越小，所以不必进行新distance是否比先前小的判断
             flag_map[up.r][tmp.c].visited=1;
             flag_map[up.r][tmp.c].prior=tmp;
 
-             //printf("up_r:%d c:%d\n",tmp.r,tmp.c);
+
+printf("up\n");
+
 
 
             flag_map[up.r][tmp.c].owndir=0;
@@ -474,7 +475,7 @@ int shortest_path(point start,point desti,point shortest_path[MAX_LENGTH],int le
             flag_map[down.r][tmp.c].visited=1;
             flag_map[down.r][tmp.c].prior=tmp;
 
-             //printf("down_r:%d c:%d\n",tmp.r,tmp.c);
+             printf("down_r:%d c:%d\n",tmp.r,tmp.c);
 
             flag_map[down.r][tmp.c].owndir=0;
             // add into the queue
@@ -488,7 +489,7 @@ int shortest_path(point start,point desti,point shortest_path[MAX_LENGTH],int le
             flag_map[tmp.r][left.c].visited=1;
             flag_map[tmp.r][left.c].prior=tmp;
 
-            // printf("left_r:%d c:%d\n",tmp.r,tmp.c);
+             printf("left_r:%d c:%d\n",tmp.r,tmp.c);
 
             flag_map[tmp.r][left.c].owndir=0;
             // add into the queue
@@ -502,7 +503,7 @@ int shortest_path(point start,point desti,point shortest_path[MAX_LENGTH],int le
             flag_map[tmp.r][right.c].visited=1;
             flag_map[tmp.r][right.c].prior=tmp;
 
-           //  printf("right_r:%d c:%d\n",tmp.r,tmp.c);
+           printf("right_r:%d c:%d\n",tmp.r,tmp.c);
 
             flag_map[tmp.r][right.c].owndir=0;
             // add into the queue
