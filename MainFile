@@ -45,10 +45,13 @@ int main()
 while (1)
 	{
 		Sleep(500 / rate);
-		//dir = getDir(dir); //获取蛇的行进方向
-		//dir = getAIDir(dir, length, body, foodAt); //获取AI判断得出的行进方向
-		dir=get_dir_of_a_smart_snake(body[0],foodAt,path,length,body,map);
-		//get_dir_of_a_smart_snake(point start,point desti,point path[MAX_LENGTH],int length,point body[],char map[SIZE][SIZE])
+
+        //dir是蛇的方向变量
+		//dir = getDir(dir); //玩家操纵贪吃蛇
+		//dir = getAIDir(dir, length, body, foodAt); //最初的寻路函数
+		dir=get_dir_of_a_smart_snake(body[0],foodAt,path,length,body,map);//最终版寻路函数
+
+
 		if(dir!=-1){
             result = move(foodAt, dir, length, body); //蛇的运动
 		}
@@ -78,31 +81,23 @@ while (1)
 
 	system("pause");
 
-
 }
 void init(int * length, point * foodAt, int * dir, point body[], char map[][SIZE]) //初始化
 {
 	memset(map, '*', SIZE * SIZE); //初始化地图
-/*	body[0].r = 1, body[0].c = 3; //初始化蛇的身体
+    body[0].r = 1, body[0].c = 3; //初始化蛇的身体
 	body[1].r = 1, body[1].c = 2;
 	body[2].r = 1, body[2].c = 1;
 	*length = 3; //初始长度为3
-	*dir = 1; //初始方向向右*/
+	*dir = 1; //初始方向向右
 
-	body[0].r = 8, body[0].c = 5; //初始化蛇的身体
-	body[1].r = 8, body[1].c = 6;
-	body[2].r = 7, body[2].c =6;
-	body[3].r = 7, body[3].c=7;
-	body[4].r = 7, body[4].c=8;
-	body[5].r = 8, body[5].c=8;
 
-	*length = 6; //初始长度为3
+	*length = 3; //初始长度为3
 	*dir = 1; //初始方向向
 
 
 	food(foodAt, body, *length, map); //生成食物
-
-	//foodAt->r=8,foodAt->c=7;//
+	//foodAt->r=8,foodAt->c=7;
 
 	draw(*length, *foodAt, body, map); //画图
 	printf(" 按下任意键开始，用ASDW控制方向，玩家模式ESC暂停\n");
@@ -114,8 +109,6 @@ void init(int * length, point * foodAt, int * dir, point body[], char map[][SIZE
 	cci.dwSize = 1;
 	SetConsoleCursorInfo(stdOutput, &cci);
 	COORD coord = { 0, SIZE * 2 + 3 };
-
-
 }
 
 /*void debugger()
