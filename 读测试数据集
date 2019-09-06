@@ -1,0 +1,24 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <limits.h>
+
+FILE *fp;
+int x,i=0,sum=0;
+int main()
+{
+    fp=fopen("C:\\EnglishPath\\C_languageProgramming\\MyCode\\nice_try\\test_result","r");
+    if(fp==NULL){
+        printf("error!\n");
+        return 1;
+    }
+    while(fscanf(fp,"%d",&x)!=-1){
+        sum+=x;
+        printf("------i:%d sum:%d------\n",i,sum);
+        i+=1;
+    }
+    printf("i:%d sum:%d average:%f\n",i,sum,(double)sum/i);
+
+    return 0;
+}
+
